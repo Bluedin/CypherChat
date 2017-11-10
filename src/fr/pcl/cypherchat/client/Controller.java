@@ -1,5 +1,8 @@
-package fr.exia.cypherchat.client;
+package fr.pcl.cypherchat.client;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.Socket;
 
 public class Controller implements ModelListener, ViewListener {
@@ -29,6 +32,16 @@ public class Controller implements ModelListener, ViewListener {
 		// TODO test, to be deleted
 		try {
 			Socket sock = new Socket("localhost", 500);
+			PrintWriter out = new PrintWriter(sock.getOutputStream(), true);
+			BufferedReader in = new BufferedReader(new InputStreamReader(sock.getInputStream()));
+			out.println(message);
+			
+			String serverMessage = in.readLine();
+			System.out.println("[Client] Message received " + serverMessage);
+			
+			Thread.sleep(1000);
+			out.close();
+			sock.close();
 		}
 		catch (Exception e) {
 			System.err.println("[Client] Impossible de se connecter");

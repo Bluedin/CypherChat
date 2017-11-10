@@ -1,4 +1,4 @@
-package fr.exia.cypherchat.server;
+package fr.pcl.cypherchat.server;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -6,7 +6,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Server implements Runnable{
+public class Server implements Runnable, ClientListener{
 
 	private int port;
 	private ServerSocket socket;
@@ -38,13 +38,24 @@ public class Server implements Runnable{
 				s = socket.accept();
 			System.out.println("[Server] Connection received from " 
 					+ s.getInetAddress());
-			Client c = new Client(s);
+			Client c = new Client(this, s);
+			c.startPollingThread();
 			this.connectedClients.add(c);
+			c.addClientListener(this);
 			} catch (IOException e) {
-				System.out.println("[Server] Accept error");
+				System.err.println("[Server] Client initialization error");
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	public void onDeconnection(Client c) {
+		this.connectedClients.remove(c);
+		System.out.println("[Server]{" + c.getSocket().getInetAddress() + "] Client has been disconnected");
+	}
+	
+	public void onMessageReceived(Client c, String message) {
+		System.out.println("[Server][" + c.getSocket().getInetAddress() + "] Received message: " + message);
 	}
 	
 }

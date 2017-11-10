@@ -1,4 +1,4 @@
-package fr.exia.cypherchat.client;
+package fr.pcl.cypherchat.client;
 
 public interface ModelListener {
 

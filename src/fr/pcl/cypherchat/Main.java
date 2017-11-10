@@ -1,14 +1,14 @@
-package fr.exia.cypherchat;
+package fr.pcl.cypherchat;
 
 import java.awt.EventQueue;
 import java.io.IOException;
 
 import javax.swing.UIManager;
 
-import fr.exia.cypherchat.client.ClientWindow;
-import fr.exia.cypherchat.client.Controller;
-import fr.exia.cypherchat.client.Model;
-import fr.exia.cypherchat.server.Server;
+import fr.pcl.cypherchat.client.ClientWindow;
+import fr.pcl.cypherchat.client.Controller;
+import fr.pcl.cypherchat.client.Model;
+import fr.pcl.cypherchat.server.Server;
 
 public class Main {
 
