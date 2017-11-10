@@ -1,4 +1,4 @@
-package exia.fr.cypherchat;
+package fr.exia.cypherchat.client;
 
 import java.awt.EventQueue;
 
@@ -14,23 +14,32 @@ import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.JTextField;
 import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.swing.SwingConstants;
 import javax.swing.JList;
 import javax.swing.JComboBox;
 
 public class ClientWindow {
 
-	private JFrame frmCypherchat;
-	private JPanel panelLeft;
-	private JPanel panelBottom;
-	private JPanel panelCenter;
-	private JTextField messageField;
-	private JTextField txtNickname;
+	public JFrame frmCypherchat;
+	protected JPanel panelLeft;
+	protected JPanel panelBottom;
+	protected JPanel panelCenter;
+	protected JTextField messageField;
+	protected JTextField txtNickname;
 	private JScrollPane scrollPaneUser;
 	private JList<?> UserList;
 	private JComboBox<?> CypherComboBox;
 	private JScrollPane scrollPaneChat;
 	private JTextArea chatTextArea;
+	
+	private List<ViewListener> listeners;
 
 	/**
 	 * Launch the application.
@@ -60,6 +69,7 @@ public class ClientWindow {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
+		this.listeners = new ArrayList<>();
 		frmCypherchat = new JFrame();
 		frmCypherchat.setTitle("CypherChat");
 		frmCypherchat.setBounds(100, 100, 674, 470);
@@ -163,5 +173,53 @@ public class ClientWindow {
 		chatTextArea.setEditable(false);
 		scrollPaneChat.setViewportView(chatTextArea);
 		frmCypherchat.getContentPane().setLayout(groupLayout);
+		
+		messageField.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String message = messageField.getText();
+				notifyEvent("onMessageSent", message);
+				messageField.setText("");
+			}
+		});
+		
+		txtNickname.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e) {
+				notifyEvent("onNicknameChanged", txtNickname.getText());
+			}
+		});
 	}
+	
+	public void addListener(ViewListener listener) {
+		this.listeners.add(listener);
+	}
+	
+	public void removeListener(ViewListener listener) {
+		this.listeners.remove(listener);
+	}
+	
+	public void notifyEvent(String methodName, Object... args) {
+		Method methodCall = null;
+		for(Method method : ViewListener.class.getMethods()) {
+			if(methodName.equals(method.getName())){
+				methodCall = method;
+				break;
+			}
+		}
+		if(methodCall == null) {
+			throw new IllegalArgumentException("Event " + methodName + " doesn't exist");
+		}
+		
+		for (ViewListener listener : this.listeners) {
+			try {
+				methodCall.invoke(listener, args);
+			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+				System.err.println("Erreur lors du dispatch de l'event " 
+						+ methodName + " sur le listener " 
+						+ listener.getClass());
+				e.printStackTrace();
+			}
+		}
+	}
+	
 }
