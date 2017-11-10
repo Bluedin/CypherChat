@@ -39,9 +39,9 @@ public class Controller implements ModelListener, ViewListener {
 			String serverMessage = in.readLine();
 			System.out.println("[Client] Message received " + serverMessage);
 			
-			Thread.sleep(1000);
-			out.close();
-			sock.close();
+//			Thread.sleep(1000);
+//			out.close();
+//			sock.close();
 		}
 		catch (Exception e) {
 			System.err.println("[Client] Impossible de se connecter");

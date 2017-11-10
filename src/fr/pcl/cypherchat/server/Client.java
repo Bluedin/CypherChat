@@ -15,10 +15,11 @@ public class Client implements Runnable {
 	private BufferedReader in;
 	private Thread thread;
 	private List<ClientListener> list = new ArrayList<>();
-	private Server server;
+//	private Server server;
+	private String nickname = "anonymous";
 	
-	public Client(Server server, Socket socket) throws IOException {
-		this.server = server;
+	public Client(/*Server server, */Socket socket) throws IOException {
+		//this.server = server;
 		this.socket = socket;
 		out = new PrintWriter(socket.getOutputStream(), true);
 		in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -89,7 +90,7 @@ public class Client implements Runnable {
 	
 	public void notifyDeconnection() {
 		for(ClientListener listener : list) {
-			listener.onDeconnection(this);
+			listener.onClientDeconnection(this);
 		}
 	}
 	
@@ -97,6 +98,10 @@ public class Client implements Runnable {
 		for(ClientListener listener : list) {
 			listener.onMessageReceived(this, message);
 		}
+	}
+
+	public String getNickname() {
+		return this.nickname;
 	}
 
 }

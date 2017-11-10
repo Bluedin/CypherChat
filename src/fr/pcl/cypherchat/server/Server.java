@@ -36,12 +36,14 @@ public class Server implements Runnable, ClientListener{
 			Socket s;
 			try {
 				s = socket.accept();
-			System.out.println("[Server] Connection received from " 
+				System.out.println("[Server] Connection received from " 
 					+ s.getInetAddress());
-			Client c = new Client(this, s);
-			c.startPollingThread();
-			this.connectedClients.add(c);
-			c.addClientListener(this);
+				Client c = new Client(/*this, */s);
+				c.startPollingThread();
+				synchronized (this.connectedClients) {
+					this.connectedClients.add(c);
+				}
+				c.addClientListener(this);
 			} catch (IOException e) {
 				System.err.println("[Server] Client initialization error");
 				e.printStackTrace();
@@ -49,13 +51,41 @@ public class Server implements Runnable, ClientListener{
 		}
 	}
 	
-	public void onDeconnection(Client c) {
-		this.connectedClients.remove(c);
+	public void onClientDeconnection(Client c) {
 		System.out.println("[Server]{" + c.getSocket().getInetAddress() + "] Client has been disconnected");
+		synchronized(this.connectedClients) {
+			this.connectedClients.remove(c);
+		}
 	}
 	
 	public void onMessageReceived(Client c, String message) {
 		System.out.println("[Server][" + c.getSocket().getInetAddress() + "] Received message: " + message);
+		broadcastMessage(c, message);
+	}
+
+	private void broadcastMessage(Client c, String message) {
+		String data = "MSG;";
+		data += c.getNickname();
+		data += ";";
+		data += (long) System.currentTimeMillis() / 1000;
+		data += ";";
+		data += c.getSocket().getInetAddress();
+		data += ";";
+		data += message;
+		
+		broadcast(data);
+	}
+	
+	private void broadcast(String message) {
+		
+		ArrayList<Client> copy;
+		synchronized(this.connectedClients) {
+			copy = new ArrayList<>(this.connectedClients);
+		}
+		
+		for(Client client : copy) {
+			client.sendMessage(message);
+		}
 	}
 	
 }
