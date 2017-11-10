@@ -51,16 +51,34 @@ public class Server implements Runnable, ClientListener{
 		}
 	}
 	
-	public void onClientDeconnection(Client c) {
-		System.out.println("[Server]{" + c.getSocket().getInetAddress() + "] Client has been disconnected");
+	public void onClientDeconnection(Client client) {
+		System.out.println("[Server]{" + client.getSocket().getInetAddress() + "] Client has been disconnected");
 		synchronized(this.connectedClients) {
-			this.connectedClients.remove(c);
+			
+			this.connectedClients.remove(client);
 		}
 	}
 	
-	public void onMessageReceived(Client c, String message) {
-		System.out.println("[Server][" + c.getSocket().getInetAddress() + "] Received message: " + message);
-		broadcastMessage(c, message);
+	public void onClientRawDataReceived(Client client, String message) {
+		System.out.println("[Server][" + client.getSocket().getInetAddress() + "] Received data: " + message);
+		if(message.length() < 3 ) {
+			System.err.println("[Server] Invalid Raw data");
+			return;
+		}
+		String opcode = message.substring(0, 4);
+		
+		switch(opcode) {
+		case "MSG;":
+			broadcastMessage(client, message.substring(4));
+			break;
+		case "NCK;":
+			client.setNickname(message.substring(4));
+			System.out.println("Nickname changed: " + client.getNickname());
+			break;
+		default :
+				System.err.println("[Server] Invalid OPCODE : " + opcode);
+				return;
+		}
 	}
 
 	private void broadcastMessage(Client c, String message) {

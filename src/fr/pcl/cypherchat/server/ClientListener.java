@@ -4,6 +4,6 @@ public interface ClientListener {
 
 	void onClientDeconnection(Client c);
 	
-	void onMessageReceived(Client c, String message);
+	void onClientRawDataReceived(Client c, String message);
 	
 }

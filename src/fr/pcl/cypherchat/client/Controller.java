@@ -34,9 +34,14 @@ public class Controller implements ModelListener, ViewListener {
 			Socket sock = new Socket("localhost", 500);
 			PrintWriter out = new PrintWriter(sock.getOutputStream(), true);
 			BufferedReader in = new BufferedReader(new InputStreamReader(sock.getInputStream()));
-			out.println(message);
+			
+			out.println("NCK;JeanJean");
+			out.println("MSG;"+message);
 			
 			String serverMessage = in.readLine();
+			System.out.println("[Client] Message received " + serverMessage);
+			
+			serverMessage = in.readLine();
 			System.out.println("[Client] Message received " + serverMessage);
 			
 //			Thread.sleep(1000);

@@ -96,12 +96,16 @@ public class Client implements Runnable {
 	
 	public void notifyMessage(String message) {
 		for(ClientListener listener : list) {
-			listener.onMessageReceived(this, message);
+			listener.onClientRawDataReceived(this, message);
 		}
 	}
 
 	public String getNickname() {
 		return this.nickname;
+	}
+	
+	public void setNickname(String nickname) {
+		this.nickname = nickname;
 	}
 
 }
